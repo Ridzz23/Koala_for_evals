@@ -1,3 +1,4 @@
+import sys
 import bashlex
 
 class BashToDSLTranspiler:
@@ -50,49 +51,130 @@ class BashToDSLTranspiler:
         return base_command
 
     def visit_word(self, node) -> str:
-        """Translates arguments, literal words, flags, and variables."""
+        """
+        Translates arguments, flags, and patterns strictly conforming to the 
+        Python Shell Extension PEG grammar rules.
+        """
         word_value = node.word
         
-        # FIX FOR LOST SPACE: If the argument is literally just an empty space,
-        # explicitly wrap it in quotes so it doesn't get swallowed by join()
+        # 1. Fix for lost spaces (e.g., ' ') -> must be an explicit string
         if word_value == " ":
             return '" "'
+
+        # 2. If it is already explicitly quoted in the input, strip bashlex artifacts
+        # and normalize it to double quotes for the PEG parser's `strings` rule
+        if (word_value.startswith("'") and word_value.endswith("'")) or \
+           (word_value.startswith('"') and word_value.endswith('"')):
+            content = word_value[1:-1]
+            return f'"{content}"'
+
+        # 3. STRICT GRAMMAR SANITIZATION:
+        # Check if the word contains characters that are NOT valid Python NAME tokens, 
+        # or do not match your allowed flags (op='-' n=NAME) or variables (op='$' n=NAME).
+        # Characters like \, [, ], ., -, and digits in argument positions must be strings.
+        special_shell_chars = ['\\', '[', ']', '.', '*', '?', '{', '}', '(', ')']
+        
+        contains_special = any(char in word_value for char in special_shell_chars)
+        is_complex_flag = word_value.startswith('-') and any(char in word_value[1:] for char in ['-', '.', '/', '\\'])
+        is_range_or_num = any(char.isdigit() for char in word_value) and '-' in word_value
+
+        if contains_special or is_complex_flag or is_range_or_num:
+            # Escape internal backslashes for safe Python string compilation
+            safe_value = word_value.replace('\\', '\\\\')
+            return f'"{safe_value}"'
                 
+        # 4. Valid plain literals (e.g., sort, uniq, $1, -nr) flow through cleanly
         return word_value
 
     def visit_redirect(self, node) -> str:
         """Translates file redirections cleanly by tracking direction via node.type"""
-        # 1. Recursively get the target filename string
         target_file = self.visit(node.output)
         
-        # 2. Enforce grammar rule: Target filenames must be written as quoted strings
         if not (target_file.startswith('"') and target_file.endswith('"')):
             target_file = f'"{target_file}"'
 
-        # 3. Use node.type string evaluation to determine the stream direction
         if node.type == '<':
             return f'$< {target_file}'
         elif node.type == '>':
             return f'$> {target_file}'
         else:
-            # Fallback wrapper safety guard for other structural variants (like >>, 2>)
             if '<' in node.type:
                 return f'$< {target_file}'
             return f'$> {target_file}'
 
-# --- Verification Run ---
-if __name__ == "__main__":
-    transpiler = BashToDSLTranspiler()
+
+def run_verification_tests(transpiler):
+    """Runs the 2 regression tests automatically on startup to verify stability."""
+    print("====================================================")
+    print("        RUNNING TRANSPILER VERIFICATION TESTS       ")
+    print("====================================================")
     
-    # Test 1: Professor's cut command
-    bash_input = "cat $1 | cut -d ' ' -f 2"
-    dsl_output = transpiler.transpile(bash_input)
-    print("=== FIXED TRANSPILER VERIFICATION ===")
-    print(f"Bash: {bash_input}")
-    print(f"DSL:  {dsl_output}\n")
+    # Test 1: Cut parameter spacing regression
+    bash_input_1 = "cat $1 | cut -d ' ' -f 2"
+    dsl_output_1 = transpiler.transpile(bash_input_1)
+    print(f"Test 1 [Bash]: {bash_input_1}")
+    print(f"Test 1 [ DSL]: {dsl_output_1}")
+    print("-" * 52)
     
-    # Test 2: Redirection chains
+    # Test 2: Directional stream inversion regression
     bash_input_2 = "cat < input.txt | grep error > output.log"
     dsl_output_2 = transpiler.transpile(bash_input_2)
-    print(f"Bash: {bash_input_2}")
-    print(f"DSL:  {dsl_output_2}")
+    print(f"Test 2 [Bash]: {bash_input_2}")
+    print(f"Test 2 [ DSL]: {dsl_output_2}")
+    print("====================================================\n")
+
+
+def interactive_loop():
+    transpiler = BashToDSLTranspiler()
+    
+    # 1. Boot up validation tests first
+    run_verification_tests(transpiler)
+    
+    # 2. Enter continuous prompt engine
+    print("====================================================")
+    print("  BASH TO PYTHON-SHELL EXTENSION TRANSPILER (CLI)   ")
+    print("====================================================")
+    print("Instructions:")
+    print("  - Type or paste your Bash code below.")
+    print("  - For multi-line code blocks, type 'MULTILINE' to start.")
+    print("  - Type 'exit' or 'quit' to close the program.\n")
+
+    while True:
+        try:
+            user_input = input("bash> ").strip()
+            
+            if not user_input:
+                continue
+                
+            if user_input.lower() in ['exit', 'quit']:
+                print("Goodbye!")
+                break
+                
+            # Handle block structures
+            if user_input.upper() == 'MULTILINE':
+                print("--- Entering Multi-line Mode (Type 'END' on a clean line to finish) ---")
+                buffer = []
+                while True:
+                    line = input()
+                    if line.strip().upper() == 'END':
+                        break
+                    buffer.append(line)
+                user_input = "\n".join(buffer)
+                print("--- Processing Code Block ---")
+
+            # Transpile the active payload
+            dsl_output = transpiler.transpile(user_input)
+            
+            print("\n--- Extended Python-Shell Syntax ---")
+            print(dsl_output)
+            print("------------------------------------\n")
+
+        except KeyboardInterrupt:
+            print("\nGoodbye!")
+            sys.exit(0)
+        except Exception as e:
+            print(f"\n[Error]: {e}\n")
+
+
+if __name__ == "__main__":
+    interactive_loop()
