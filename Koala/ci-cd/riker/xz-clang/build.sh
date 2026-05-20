@@ -32,3 +32,5 @@ clang $CFLAGS -o xzdec src/common/*.c src/xzdec/*.c $INCLUDES -L. -llzma
 
 # Build xz
 clang $CFLAGS -o xz src/common/*.c src/xz/*.c $INCLUDES -L. -llzma
+
+# git test
