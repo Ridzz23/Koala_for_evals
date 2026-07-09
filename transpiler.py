@@ -120,31 +120,28 @@ class BashToDSLTranspiler:
         word_value = node.word
         raw_value = self.get_raw_word(node)
 
+        # Preserve original quoting semantics
         if raw_value.startswith("'") and raw_value.endswith("'"):
             content = raw_value[1:-1]
 
-            # Escape backslashes and double quotes for the Python string
             safe = content.replace("\\", "\\\\").replace('"', '\\"')
-
-            # Return a Python string whose contents are the original single-quoted shell argument
             return f'"\'{safe}\'"'
-        
+
         if raw_value.startswith('"') and raw_value.endswith('"'):
             content = raw_value[1:-1]
 
-            # Preserve embedded programs (awk, etc.)
             if "{" in content and "}" in content:
                 safe = content.replace("\\", "\\\\").replace('"', '\\"')
-                return f'"{safe}"'
+                return f"'\"{safe}\"'"
 
             safe = content.replace("\\", "\\\\").replace('"', '\\"')
-            return f'"{safe}"'
+            return f"'\"{safe}\"'"
 
-        # 1. Catch positional arguments and map them to our clean variable names (unquoted)
+        # positional arguments
         if '$1' in word_value:
             self.uses_arg1 = True
             return word_value.replace('"$1"', 'x').replace('$1', 'x')
-            
+
         if '$2' in word_value:
             self.uses_arg2 = True
             return word_value.replace('"$2"', 'y').replace('$2', 'y')
@@ -152,16 +149,14 @@ class BashToDSLTranspiler:
         if word_value == " ":
             return '" "'
 
-        # 2. If it's explicitly the command token (e.g., cat, grep), keep it bare
+        # command name
         if is_command_name:
             return word_value
 
-        # 3. Keep switches/flags unquoted (-d, -n, --target, -w1)
+        # flags
         if word_value.startswith('-'):
             return word_value
 
-
-        # 5. Fallback: Everything else (numbers, strings like Bell, expressions) gets quoted!
         safe_value = word_value.replace('\\', '\\\\').replace('"', '\\"')
         return f'"{safe_value}"'
 
