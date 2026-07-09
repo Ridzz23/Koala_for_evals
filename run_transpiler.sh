@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Exit immediately if a command exits with a non-zero status
+# TO RUN: ./run_transpiler unixfun
 set -e
 
 # 1. Check if a folder argument was provided

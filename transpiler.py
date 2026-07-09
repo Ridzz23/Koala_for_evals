@@ -9,12 +9,27 @@ class BashToDSLTranspiler:
     def __init__(self):
         self.requires_glob = False
         self.requires_sys = False
+        self.requires_os = False
+        self.uses_arg1 = False  # Track if $1 is used
+        self.uses_arg2 = False  # Track if $2 is used
+        self.original_script = ""
+    
+    def get_raw_word(self, node):
+        if hasattr(node, "pos") and getattr(self, "original_script", None):
+            start, end = node.pos
+            return self.original_script[start:end]
+        return node.word
 
     def transpile(self, bash_script: str) -> str:
         """Parses a full Bash script and recursively translates it."""
+        self.original_script = bash_script
+
+
         self.requires_glob = False
         self.requires_sys = False
-        self.requires_os = False  # <-- Add tracking for os module
+        self.requires_os = False
+        self.uses_arg1 = False
+        self.uses_arg2 = False
         
         try:
             ast_trees = bashlex.parse(bash_script)
@@ -25,16 +40,24 @@ class BashToDSLTranspiler:
         for tree in ast_trees:
             res = self.visit(tree)
             if res:
-                translated_lines.append(res)
+                translated_lines.append(f"y = {res}")
+                translated_lines.append("print(y)")
         
         # Build header boilerplate automatically
         header = []
+        if self.requires_sys or self.uses_arg1 or self.uses_arg2:
+            header.append("import sys")
         if self.requires_glob:
             header.append("import glob")
-        if self.requires_sys:
-            header.append("import sys")
         if self.requires_os:
-            header.append("import os")  # <-- Auto-include os if needed
+            header.append("import os")
+            
+        # Inject the explicit variable assignments right after imports
+        if self.uses_arg1:
+            header.append("x = sys.argv[1]")
+        if self.uses_arg2:
+            header.append("y = sys.argv[2]")
+            
         if header:
             header.append("")
             
@@ -61,9 +84,16 @@ class BashToDSLTranspiler:
         cmd_parts = []
         redirect_parts = []
 
-        for part in getattr(node, 'parts', []):
+        # Enumerate over parts to track which token is the base command
+        for idx, part in enumerate(getattr(node, 'parts', [])):
             if part.kind == 'redirect':
                 redirect_parts.append(self.visit(part))
+            elif part.kind == 'word':
+                # Pass an extra flag to visit_word indicating if it's the command name
+                is_cmd_name = (idx == 0)
+                translated_part = self.visit_word(part, is_command_name=is_cmd_name)
+                if translated_part:
+                    cmd_parts.append(translated_part)
             else:
                 translated_part = self.visit(part)
                 if translated_part:
@@ -86,30 +116,52 @@ class BashToDSLTranspiler:
                 and not rendered_arg.startswith('--')
                 and not rendered_arg.startswith('"'))
 
-    def visit_word(self, node) -> str:
+    def visit_word(self, node, is_command_name=False) -> str:
         word_value = node.word
+        raw_value = self.get_raw_word(node)
+
+        if raw_value.startswith("'") and raw_value.endswith("'"):
+            content = raw_value[1:-1]
+
+            # Escape backslashes and double quotes for the Python string
+            safe = content.replace("\\", "\\\\").replace('"', '\\"')
+
+            # Return a Python string whose contents are the original single-quoted shell argument
+            return f'"\'{safe}\'"'
+        
+        if raw_value.startswith('"') and raw_value.endswith('"'):
+            content = raw_value[1:-1]
+
+            # Preserve embedded programs (awk, etc.)
+            if "{" in content and "}" in content:
+                safe = content.replace("\\", "\\\\").replace('"', '\\"')
+                return f'"{safe}"'
+
+            safe = content.replace("\\", "\\\\").replace('"', '\\"')
+            return f'"{safe}"'
+
+        # 1. Catch positional arguments and map them to our clean variable names (unquoted)
+        if '$1' in word_value:
+            self.uses_arg1 = True
+            return word_value.replace('"$1"', 'x').replace('$1', 'x')
+            
+        if '$2' in word_value:
+            self.uses_arg2 = True
+            return word_value.replace('"$2"', 'y').replace('$2', 'y')
 
         if word_value == " ":
             return '" "'
 
-        if (word_value.startswith("'") and word_value.endswith("'")) or \
-           (word_value.startswith('"') and word_value.endswith('"')):
-            content = word_value[1:-1]
-            return f'"{content}"'
-
-        if word_value.startswith('--') and _NAME_RE.match(word_value[2:]):
+        # 2. If it's explicitly the command token (e.g., cat, grep), keep it bare
+        if is_command_name:
             return word_value
 
-        if word_value.startswith('-') and _NAME_RE.match(word_value[1:]):
+        # 3. Keep switches/flags unquoted (-d, -n, --target, -w1)
+        if word_value.startswith('-'):
             return word_value
 
-        if word_value.startswith('$') or word_value.startswith('=$'):
-            safe_value = word_value.replace('\\', '\\\\').replace('"', '\\"')
-            return f'"{safe_value}"'
 
-        if _NAME_RE.match(word_value):
-            return word_value
-
+        # 5. Fallback: Everything else (numbers, strings like Bell, expressions) gets quoted!
         safe_value = word_value.replace('\\', '\\\\').replace('"', '\\"')
         return f'"{safe_value}"'
 
@@ -237,6 +289,9 @@ class BashToDSLTranspiler:
                 clean_value = re.sub(r'\$\(basename\s+\$?[A-Za-z0-9_]+\)', f'{{os.path.basename({target_var})}}', clean_value)
                 
                 return f"{var_name} = f'{clean_value}'"
+
+        if '$1' in var_value or '$2' in var_value:
+            self.requires_sys = True
 
         # Fallback default assignment handling
         processed = raw_assignment.replace('$1', 'sys.argv[1]')\

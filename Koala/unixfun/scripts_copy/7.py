@@ -1,1 +1,5 @@
-cat "$1" $| tr " " "\\n" $| grep "\\." $| wc "-l"
+import sys
+x = sys.argv[1]
+
+y = cat x $| tr "' '" "'\\n'" $| grep "'\\.'" $| wc "-l"
+print(y)

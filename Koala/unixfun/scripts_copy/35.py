@@ -1,1 +1,5 @@
-cat "$1" $| grep UNIX $| cut -f "1"
+import sys
+x = sys.argv[1]
+
+y = cat x $| grep "'UNIX'" $| cut -f "1"
+print(y)

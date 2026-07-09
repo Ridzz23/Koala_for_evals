@@ -1,1 +1,5 @@
-cat "$1" $| cut -d " " -f "2" $| sort
+import sys
+x = sys.argv[1]
+
+y = cat x $| cut -d "' '" -f "2" $| sort
+print(y)
