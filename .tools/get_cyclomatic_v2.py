@@ -3,29 +3,26 @@
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Optional
 import json
 from subprocess import check_output
 
+from all_scripts_v2 import get_all_scripts
 from project_root import get_project_root
 
+if len(sys.argv) < 2:
+    print("Usage: get_cyclomatic_v2.py <corpus_path>", file=sys.stderr)
+    sys.exit(1)
+
 root = get_project_root().resolve()
+corpus_path = Path(sys.argv[1]).resolve()
+
 shellmetrics = root / '.tools' / 'target' / 'shellmetrics_v2.sh'
 if not shellmetrics.is_file():
     shellmetrics = root / '.tools' / 'target' / 'shellmetrics.sh'
 if not shellmetrics.is_file():
     raise FileNotFoundError(f'shellmetrics script not found in target/shellmetrics_v2.sh or target/shellmetrics.sh')
 
-if len(sys.argv) > 1:
-    from all_scripts_v2 import get_all_scripts
-    corpus_path = Path(sys.argv[1]).resolve()
-    scripts_dict = get_all_scripts(corpus_path)
-    has_category = True
-else:
-    from all_scripts import get_all_scripts
-    scripts_dict = get_all_scripts()
-    has_category = False
-
+scripts_dict = get_all_scripts(corpus_path)
 all_scripts = []
 script_to_cat = {}
 for cat, scripts in scripts_dict.items():
@@ -52,9 +49,5 @@ for p, ccns in datas.items():
         rel = p.relative_to(root)
     except ValueError:
         rel = p
-    if has_category:
-        cat = script_to_cat.get(p, '')
-        print(rel, cat, total_ccn, sep=',')
-    else:
-        print(rel, total_ccn, sep=',')
-
+    cat = script_to_cat.get(p, '')
+    print(rel, cat, total_ccn, sep=',')
