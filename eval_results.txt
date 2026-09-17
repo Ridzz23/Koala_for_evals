@@ -1,0 +1,82 @@
+=== Running Koala Equivalence Suite ===
+Timestamp: Thu Sep 17 08:58:31 UTC 2026
+PEPPER Binary: /build-linux/python
+Results Log: /koala_evals/eval_results.txt
+
+--- Category: analytics ---
+  Testing port-scan                      ... [FAIL] (Output mismatch)
+  Testing ray-tracing                    ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+--- Category: covid ---
+  Testing 1                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 2                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 3                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 4                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 5                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+--- Category: nlp ---
+  Testing count_consonant_seq            ... [FAIL] (Output mismatch)
+  Testing count_morphs                   ... [FAIL] (Output mismatch)
+  Testing count_vowel_seq                ... [FAIL] (Output mismatch)
+  Testing count_words                    ... [FAIL] (Output mismatch)
+  Testing letter_words                   ... [FAIL] (Output mismatch)
+  Testing merge_upper                    ... [FAIL] (Output mismatch)
+  Testing sort                           ... [FAIL] (Output mismatch)
+  Testing sort_words_by_folding          ... [FAIL] (Output mismatch)
+  Testing sort_words_by_rhyming          ... [FAIL] (Output mismatch)
+  Testing syllable_words_1               ... [FAIL] (Output mismatch)
+  Testing syllable_words_2               ... [FAIL] (Output mismatch)
+  Testing uppercase_by_token             ... [FAIL] (Output mismatch)
+  Testing uppercase_by_type              ... [FAIL] (Output mismatch)
+  Testing verses_2om_3om_2instances      ... [FAIL] (Output mismatch)
+  Testing vowel_sequencies_gr_1K         ... [FAIL] (Output mismatch)
+  Testing words_no_vowels                ... [FAIL] (Output mismatch)
+--- Category: oneliners ---
+  Testing comm                           ... [FAIL] (Output mismatch)
+  Testing diff                           ... [TIMEOUT]
+  Testing nfa-regex                      ... [FAIL] (Output mismatch)
+  Testing opt-parallel                   ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing sort-sort                      ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing sort                           ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing top-n                          ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing uniq-ips                       ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing wf                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+--- Category: unixfun ---
+  Testing 1                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 10                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 11                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 12                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 13                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 14                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 15                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 16                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 17                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 18                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 19                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 2                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 20                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 21                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 22                             ... [PASS]
+  Testing 23                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 24                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 25                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 26                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 27                             ... [PASS]
+  Testing 28                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 29                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 3                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 30                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 31                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 32                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 34                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 35                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 36                             ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 4                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 5                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 6                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 7                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 8                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+  Testing 9                              ... [FAIL] (Exit code mismatch: Bash=0, PEPPER=1)
+--- Category: weather ---
+  Testing temp-analytics                 ... [FAIL] (Output mismatch)
+
+=== Results ===
+Passed: 2 | Failed: 66 | Errors: 0

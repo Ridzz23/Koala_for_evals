@@ -1,0 +1,4 @@
+import sys
+
+y = cat sys.argv[1] $| cut -f "4" $| sort -n $| cut -c "3-3" $| uniq $| sed "s/$/0s/"
+print(y)
