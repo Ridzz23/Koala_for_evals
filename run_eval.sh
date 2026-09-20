@@ -151,7 +151,7 @@ for cat_dir in "$BASH_SUITE"/*; do
         elif [ "$bash_exit" -ne "$pepper_exit" ]; then
             echo "[FAIL] (Exit code mismatch: Bash=$bash_exit, PEPPER=$pepper_exit)"
             ((FAILED++))
-        elif diff -u <(clean_content "$bash_out") <(clean_content "$pepper_out") > /dev/null 2>&1; then
+        elif diff -u "$bash_out" "$pepper_out" > /dev/null 2>&1; then
             echo "[PASS]"
             ((PASSED++))
         else

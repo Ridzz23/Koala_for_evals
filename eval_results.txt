@@ -1,5 +1,5 @@
 === Running Koala Equivalence Suite ===
-Timestamp: Sun Sep 20 05:07:18 UTC 2026
+Timestamp: Sun Sep 20 05:37:15 UTC 2026
 PEPPER Binary: /koala_evals/python-shell-DSL-copy/python.exe
 Results Log: /koala_evals/eval_results.txt
 
@@ -54,24 +54,22 @@ Results Log: /koala_evals/eval_results.txt
   Testing 2                              ... [PASS]
   Testing 20                             ... [PASS]
   Testing 21                             ... [PASS]
-  Testing 22                             ... [PASS]
   Testing 23                             ... [PASS]
-  Testing 24                             ... [PASS]
-  Testing 25                             ... [PASS]
-  Testing 26                             ... [PASS]
-  Testing 27                             ... [PASS]
-  Testing 28                             ... [PASS]
-  Testing 29                             ... [PASS]
+  Testing 24                             ... [FAIL] (Output mismatch)
+  Testing 25                             ... [FAIL] (Output mismatch)
+  Testing 26                             ... [FAIL] (Output mismatch)
+  Testing 28                             ... [FAIL] (Output mismatch)
+  Testing 29                             ... [FAIL] (Output mismatch)
   Testing 3                              ... [PASS]
-  Testing 30                             ... [PASS]
-  Testing 31                             ... [PASS]
+  Testing 30                             ... [FAIL] (Output mismatch)
+  Testing 31                             ... [FAIL] (Output mismatch)
   Testing 32                             ... [PASS]
-  Testing 34                             ... [PASS]
+  Testing 34                             ... [FAIL] (Output mismatch)
   Testing 35                             ... [PASS]
   Testing 36                             ... [PASS]
   Testing 4                              ... [PASS]
   Testing 5                              ... [PASS]
-  Testing 6                              ... [PASS]
+  Testing 6                              ... [FAIL] (Output mismatch)
   Testing 7                              ... [PASS]
   Testing 8                              ... [PASS]
   Testing 9                              ... [PASS]
@@ -79,4 +77,4 @@ Results Log: /koala_evals/eval_results.txt
   Testing temp-analytics                 ... [PASS]
 
 === Results ===
-Passed: 67 | Failed: 1 | Errors: 0
+Passed: 56 | Failed: 10 | Errors: 0
