@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -u
 
-PEPPER_BIN="${PEPPER_BIN:-/koala_evals/python-shell-DSL-copy/python}"
-if [ ! -f "$PEPPER_BIN" ] && [ -f "/koala_evals/python-shell-DSL-copy/python.exe" ]; then
-    PEPPER_BIN="/koala_evals/python-shell-DSL-copy/python.exe"
-elif [ ! -f "$PEPPER_BIN" ] && [ -f "/build-linux/python" ]; then
-    PEPPER_BIN="/build-linux/python"
+PEPPER_BIN="${PEPPER_BIN:-/python-shell-DSL/python.exe}"
+if [ ! -f "$PEPPER_BIN" ] && [ -f "/python-shell-dsl/python.exe" ]; then
+    PEPPER_BIN="/python-shell-dsl/python.exe"
 fi
+
 
 BASH_SUITE="/koala_evals/pepper_suite"
 TRANS_SUITE="/koala_evals/pepper_suite_transpiled"
@@ -15,6 +14,16 @@ TMP_DIR="/tmp/koala_eval_outputs"
 RESULTS_FILE="/koala_evals/eval_results.txt"
 
 mkdir -p "$TMP_DIR"
+
+# Configure zannotate if binary is present
+if [ -f "/koala_evals/build-linux/zannotate" ]; then
+    mkdir -p /usr/local/bin
+    cat << 'EOF' > /usr/local/bin/zannotate
+#!/usr/bin/env bash
+exec /koala_evals/build-linux/zannotate -status-file=/dev/null "$@"
+EOF
+    chmod +x /usr/local/bin/zannotate
+fi
 
 # Tee entire output to RESULTS_FILE while preserving terminal output
 exec > >(tee "$RESULTS_FILE") 2>&1
@@ -125,6 +134,17 @@ for cat_dir in "$BASH_SUITE"/*; do
                         mkdir -p "$TMP_DIR/rt_out"
                         run_args=("$INPUT_DIR/analytics/ray_tracing_in" "$TMP_DIR/rt_out")
                         ;;
+                    port-scan)
+                        mkdir -p "$TMP_DIR/ps_out"
+                        run_args=(
+                            "$INPUT_DIR/analytics/port_scan_in.json"
+                            "$INPUT_DIR/analytics/routeviews.mrt"
+                            "$TMP_DIR/ps_out/annotated.json"
+                            "$TMP_DIR/ps_out/file1.txt"
+                            "$TMP_DIR/ps_out/file2.txt"
+                            "$TMP_DIR/ps_out/as_popularity.csv"
+                        )
+                        ;;
                     *)
                         run_args=()
                         ;;
@@ -142,8 +162,28 @@ for cat_dir in "$BASH_SUITE"/*; do
         timeout "$TIMEOUT" bash "$bash_file" "${run_args[@]}" < /dev/null > "$bash_out" 2>&1
         bash_exit=$?
 
+        if [ "$bench_id" = "port-scan" ]; then
+            [ -f "$TMP_DIR/ps_out/as_popularity.csv" ] && cat "$TMP_DIR/ps_out/as_popularity.csv" >> "$bash_out"
+            rm -rf "$TMP_DIR/ps_out"/*
+        elif [ "$bench_id" = "ray-tracing" ]; then
+            [ -f "$TMP_DIR/rt_out/rt.log" ] && cat "$TMP_DIR/rt_out/rt.log" >> "$bash_out"
+            rm -rf "$TMP_DIR/rt_out"/*
+        fi
+
         timeout "$TIMEOUT" "$PEPPER_BIN" "$py_file" "${run_args[@]}" < /dev/null > "$pepper_out" 2>&1
         pepper_exit=$?
+
+        if [ "$bench_id" = "port-scan" ]; then
+            [ -f "$TMP_DIR/ps_out/as_popularity.csv" ] && cat "$TMP_DIR/ps_out/as_popularity.csv" >> "$pepper_out"
+        elif [ "$bench_id" = "ray-tracing" ]; then
+            [ -f "$TMP_DIR/rt_out/rt.log" ] && cat "$TMP_DIR/rt_out/rt.log" >> "$pepper_out"
+        fi
+
+        if [ "${CLEAN_CONTENT:-0}" = "1" ]; then
+            diff_cmd=(diff -u <(clean_content "$bash_out") <(clean_content "$pepper_out"))
+        else
+            diff_cmd=(diff -u "$bash_out" "$pepper_out")
+        fi
 
         if [ "$bash_exit" -eq 124 ] || [ "$pepper_exit" -eq 124 ]; then
             echo "[TIMEOUT]"
@@ -151,13 +191,14 @@ for cat_dir in "$BASH_SUITE"/*; do
         elif [ "$bash_exit" -ne "$pepper_exit" ]; then
             echo "[FAIL] (Exit code mismatch: Bash=$bash_exit, PEPPER=$pepper_exit)"
             ((FAILED++))
-        elif diff -u "$bash_out" "$pepper_out" > /dev/null 2>&1; then
+        elif "${diff_cmd[@]}" > /dev/null 2>&1; then
             echo "[PASS]"
             ((PASSED++))
         else
             echo "[FAIL] (Output mismatch)"
             ((FAILED++))
         fi
+
     done
 done
 

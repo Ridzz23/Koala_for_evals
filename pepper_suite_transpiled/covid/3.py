@@ -7,9 +7,10 @@ def _print_res(val):
         return
     if isinstance(val, (list, tuple)):
         sys.stdout.write("\n".join(str(x) for x in val) + "\n")
+    elif isinstance(val, (int, float)):
+        sys.stdout.write(f"{val}\n")
     else:
-        s = str(val)
-        sys.stdout.write(s if s.endswith("\n") else s + "\n")
+        sys.stdout.write(str(val))
 
 y = cat _arg1 $| sed 's/T\\(..\\):..:../,\\1/' $| cut -d ',' -f "1,2,4" $| sort -u $| cut -d ',' -f "3" $| sort $| uniq -c $| sort -k "1" -n $| awk '{print $2,$1}'
 _print_res(y)

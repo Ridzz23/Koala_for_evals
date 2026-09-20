@@ -1,0 +1,80 @@
+=== Running Koala Equivalence Suite ===
+Timestamp: Sun Sep 20 06:18:43 UTC 2026
+PEPPER Binary: /koala_evals/python-shell-DSL-copy/python.exe
+Results Log: /koala_evals/eval_results.txt
+
+--- Category: analytics ---
+  Testing port-scan                      ... [PASS]
+  Testing ray-tracing                    ... [PASS]
+--- Category: covid ---
+  Testing 1                              ... [PASS]
+  Testing 2                              ... [PASS]
+  Testing 3                              ... [PASS]
+  Testing 4                              ... [PASS]
+  Testing 5                              ... [PASS]
+--- Category: nlp ---
+  Testing count_consonant_seq            ... [PASS]
+  Testing count_morphs                   ... [PASS]
+  Testing count_vowel_seq                ... [PASS]
+  Testing count_words                    ... [PASS]
+  Testing letter_words                   ... [PASS]
+  Testing merge_upper                    ... [PASS]
+  Testing sort                           ... [PASS]
+  Testing sort_words_by_folding          ... [PASS]
+  Testing sort_words_by_rhyming          ... [PASS]
+  Testing syllable_words_1               ... [PASS]
+  Testing syllable_words_2               ... [PASS]
+  Testing uppercase_by_token             ... [PASS]
+  Testing uppercase_by_type              ... [PASS]
+  Testing verses_2om_3om_2instances      ... [PASS]
+  Testing vowel_sequencies_gr_1K         ... [PASS]
+  Testing words_no_vowels                ... [PASS]
+--- Category: oneliners ---
+  Testing comm                           ... [PASS]
+  Testing diff                           ... [PASS]
+  Testing nfa-regex                      ... [PASS]
+  Testing opt-parallel                   ... [PASS]
+  Testing sort-sort                      ... [PASS]
+  Testing sort                           ... [PASS]
+  Testing top-n                          ... [PASS]
+  Testing uniq-ips                       ... [PASS]
+  Testing wf                             ... [PASS]
+--- Category: unixfun ---
+  Testing 1                              ... [PASS]
+  Testing 10                             ... [PASS]
+  Testing 11                             ... [PASS]
+  Testing 12                             ... [PASS]
+  Testing 13                             ... [PASS]
+  Testing 14                             ... [PASS]
+  Testing 15                             ... [PASS]
+  Testing 16                             ... [PASS]
+  Testing 17                             ... [PASS]
+  Testing 18                             ... [PASS]
+  Testing 19                             ... [PASS]
+  Testing 2                              ... [PASS]
+  Testing 20                             ... [PASS]
+  Testing 21                             ... [PASS]
+  Testing 23                             ... [PASS]
+  Testing 24                             ... [FAIL] (Output mismatch)
+  Testing 25                             ... [FAIL] (Output mismatch)
+  Testing 26                             ... [FAIL] (Output mismatch)
+  Testing 28                             ... [FAIL] (Output mismatch)
+  Testing 29                             ... [FAIL] (Output mismatch)
+  Testing 3                              ... [PASS]
+  Testing 30                             ... [FAIL] (Output mismatch)
+  Testing 31                             ... [FAIL] (Output mismatch)
+  Testing 32                             ... [PASS]
+  Testing 34                             ... [FAIL] (Output mismatch)
+  Testing 35                             ... [PASS]
+  Testing 36                             ... [PASS]
+  Testing 4                              ... [PASS]
+  Testing 5                              ... [PASS]
+  Testing 6                              ... [FAIL] (Output mismatch)
+  Testing 7                              ... [PASS]
+  Testing 8                              ... [PASS]
+  Testing 9                              ... [PASS]
+--- Category: weather ---
+  Testing temp-analytics                 ... [PASS]
+
+=== Results ===
+Passed: 57 | Failed: 9 | Errors: 0

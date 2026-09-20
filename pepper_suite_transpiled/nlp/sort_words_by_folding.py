@@ -8,9 +8,10 @@ def _print_res(val):
         return
     if isinstance(val, (list, tuple)):
         sys.stdout.write("\n".join(str(x) for x in val) + "\n")
+    elif isinstance(val, (int, float)):
+        sys.stdout.write(f"{val}\n")
     else:
-        s = str(val)
-        sys.stdout.write(s if s.endswith("\n") else s + "\n")
+        sys.stdout.write(str(val))
 
 IN = os.environ.get("IN", f"{os.environ.get('SUITE_DIR', '')}/inputs/pg")
 OUT = _arg1 or f"{os.environ.get('SUITE_DIR', '')}/outputs/3_2/"
@@ -21,4 +22,5 @@ _iter_input = ls f"{IN}" $| head -n f"{ENTRIES}" $| xargs -I "arg1" "basename" "
 for input in (_iter_input.split() if _iter_input else []):
     y = cat f"{IN}/{input}" $| tr -c 'A-Za-z' '[\\n*]' $| grep -v '^\\s*$' $| sort $| uniq -c $| sort -f $> f"{OUT}/{input}"
 y = echo 'done'
+if isinstance(y, str) and not y.endswith('\n'): y += '\n'
 _print_res(y)

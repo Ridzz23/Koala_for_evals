@@ -86,6 +86,16 @@ with open(rt_dir / "1.INFO", "w") as f:
 [RAY] 590432,110,210,310
 """)
 
+with open(analytics_dir / "port_scan_in.json", "w") as f:
+    f.write("""{"ip": "8.8.8.8"}
+{"ip": "1.1.1.1"}
+{"ip": "8.8.4.4"}
+{"ip": "8.8.8.8"}
+""")
+
+(analytics_dir / "routeviews.mrt").touch()
+
+
 # 6. nlp inputs
 nlp_dir = BASE / "nlp"
 nlp_dir.mkdir(exist_ok=True)

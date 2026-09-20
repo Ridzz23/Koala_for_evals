@@ -7,9 +7,10 @@ def _print_res(val):
         return
     if isinstance(val, (list, tuple)):
         sys.stdout.write("\n".join(str(x) for x in val) + "\n")
+    elif isinstance(val, (int, float)):
+        sys.stdout.write(f"{val}\n")
     else:
-        s = str(val)
-        sys.stdout.write(s if s.endswith("\n") else s + "\n")
+        sys.stdout.write(str(val))
 
 y = sed 's/T\\(..\\):..:../,\\1/' _arg1 $| awk "-F," '!seen[$1 $2 $4] { seen[$1 $2 $4] = 1; hours[$1 $4]++; bus[$4] = 1; day[$1] = 1; } END { PROCINFO["sorted_in"] = "@ind_str_asc"; for (d in day) printf("\\t%s", d); printf("\\n"); for (b in bus) { printf("%s", b); for (d in day) printf("\\t%s", hours[d b]); printf("\\n"); } }'
 _print_res(y)

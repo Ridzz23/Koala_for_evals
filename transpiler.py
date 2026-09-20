@@ -104,9 +104,11 @@ class BashToDSLTranspiler:
         return
     if isinstance(val, (list, tuple)):
         sys.stdout.write("\\n".join(str(x) for x in val) + "\\n")
+    elif isinstance(val, (int, float)):
+        sys.stdout.write(f"{val}\\n")
     else:
-        s = str(val)
-        sys.stdout.write(s if s.endswith("\\n") else s + "\\n")""")
+        sys.stdout.write(str(val))""")
+
 
         if header:
             header.append("")
@@ -140,8 +142,11 @@ class BashToDSLTranspiler:
                     lines.append(f"y = {res}")
                 else:
                     lines.append(f"y = {res}")
+                    if res.strip().startswith("echo ") and " -n " not in res:
+                        lines.append("if isinstance(y, str) and not y.endswith('\\n'): y += '\\n'")
                     lines.append("_print_res(y)")
                     self.requires_sys = True
+
         return "\n".join(lines)
 
     def visit_compound(self, node) -> str:
@@ -180,8 +185,11 @@ class BashToDSLTranspiler:
                     lines.append(f"    y = {b_str}")
                 else:
                     lines.append(f"    y = {b_str}")
+                    if b_str.strip().startswith("echo ") and " -n " not in b_str:
+                        lines.append("    if isinstance(y, str) and not y.endswith('\\n'): y += '\\n'")
                     lines.append("    _print_res(y)")
                     self.requires_sys = True
+
         return "\n".join(lines)
 
     def visit_command(self, node) -> str:

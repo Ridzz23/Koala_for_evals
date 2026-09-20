@@ -7,9 +7,10 @@ def _print_res(val):
         return
     if isinstance(val, (list, tuple)):
         sys.stdout.write("\n".join(str(x) for x in val) + "\n")
+    elif isinstance(val, (int, float)):
+        sys.stdout.write(f"{val}\n")
     else:
-        s = str(val)
-        sys.stdout.write(s if s.endswith("\n") else s + "\n")
+        sys.stdout.write(str(val))
 
 input_file = os.environ.get("input_file", "")
 if not input_file: sys.stdout.write("script was not provided with $input_file\n")
