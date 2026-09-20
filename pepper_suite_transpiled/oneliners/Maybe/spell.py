@@ -1,6 +1,16 @@
 import sys
+import warnings
+warnings.filterwarnings('ignore', category=SyntaxWarning)
+_arg1 = sys.argv[1] if len(sys.argv) > 1 else ''
+def _print_res(val):
+    if val is None or val == "":
+        return
+    if isinstance(val, (list, tuple)):
+        sys.stdout.write("\n".join(str(x) for x in val) + "\n")
+    else:
+        s = str(val)
+        sys.stdout.write(s if s.endswith("\n") else s + "\n")
 
-y = dict = "$SUITE_DIR/inputs/dict.txt"
-print(y)
-y = cat sys.argv[1] $| sed "s/[^[:print:]]//g" $| col -bx $| tr -cs "A-Za-z" "\\n" $| tr "A-Z" "a-z" $| tr -d "[:punct:]" $| sort $| uniq $| comm "-23" "-" dict
-print(y)
+dict = "$SUITE_DIR/inputs/dict.txt"
+y = cat _arg1 $| sed 's/[^[:print:]]//g' $| col -bx $| tr -cs "A-Za-z" '\\n' $| tr "A-Z" "a-z" $| tr -d '[:punct:]' $| sort $| uniq $| comm "-23" "-" dict
+_print_res(y)

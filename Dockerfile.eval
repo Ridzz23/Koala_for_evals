@@ -1,0 +1,21 @@
+FROM debian:12
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gawk \
+    mawk \
+    jq \
+    bzip2 \
+    time \
+    diffutils \
+    wget \
+    curl \
+    file \
+    pkg-config \
+    zlib1g-dev \
+    libssl-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/*

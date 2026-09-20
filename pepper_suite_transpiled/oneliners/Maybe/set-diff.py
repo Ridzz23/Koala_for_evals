@@ -1,8 +1,21 @@
-y = mkfifo "s1" "s2"
-print(y)
-# [Unsupported Bash Node: list]
-# [Unsupported Bash Node: list]
+import sys
+import warnings
+warnings.filterwarnings('ignore', category=SyntaxWarning)
+_arg1 = sys.argv[1] if len(sys.argv) > 1 else ''
+def _print_res(val):
+    if val is None or val == "":
+        return
+    if isinstance(val, (list, tuple)):
+        sys.stdout.write("\n".join(str(x) for x in val) + "\n")
+    else:
+        s = str(val)
+        sys.stdout.write(s if s.endswith("\n") else s + "\n")
+
+y = touch "s1" "s2"
+_print_res(y)
+y = cat _arg1 $| cut -d ' ' -f "1" $| tr "[:lower:]" "[:upper:]" $| sort $> "s1"
+y = cat _arg1 $| cut -d ' ' -f "1" $| sort $> "s2"
 y = comm "-23" "s1" "s2"
-print(y)
+_print_res(y)
 y = rm "s1" "s2"
-print(y)
+_print_res(y)
